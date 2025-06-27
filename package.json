@@ -1,11 +1,13 @@
 {
   "dependencies": {
+    "dockerode": "^4.0.7",
     "dotenv": "^16.6.0",
     "express": "^5.1.0",
     "node-mcstatus": "^1.2.1",
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@types/dockerode": "^3.3.41",
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.4",
     "ts-node": "^10.9.2",
