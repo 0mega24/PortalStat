@@ -1,6 +1,7 @@
 import express from 'express';
 import type { Request, Response, Router } from 'express';
 import { getStatus } from '../services/cache';
+import { servers } from '../config';
 
 const router: Router = express.Router();
 
@@ -35,6 +36,24 @@ router.get('/:id/raw_summary', (req: Request, res: Response) => {
   } : { error: 'Status not found or not cached' };
 
   res.json(summary);
+});
+
+router.get('/ping', (req: Request, res: Response) => {
+  res.json({ pong: true, time: Date.now() });
+});
+
+router.get('/:id/ping', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const server = servers.find(s => s.id === id);
+  if (!server) {
+    res.status(404).json({ error: 'Server not found' });
+    return;
+  }
+  if (!server.dockerName) {
+    res.status(400).json({ error: 'Server is not a local Docker container' });
+    return;
+  }
+  res.json({ pong: true, time: Date.now(), server: server.dockerName });
 });
 
 export default router;
