@@ -4,6 +4,8 @@ export function setStatus(id: string, data: any): void {
   statusCache.set(id, { data, timestamp: Date.now() });
 }
 
-export function getStatus(id: string): { data: any; timestamp: number } | undefined {
+export function getStatus(id: string): {
+  online: any; data: any; timestamp: number
+} | undefined {
   return statusCache.get(id);
 }

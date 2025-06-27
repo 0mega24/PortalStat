@@ -16,7 +16,7 @@ export function startPolling(servers: ServerConfig[]) {
         setStatus(server.id, result);
         const expiresAt = (result as any)?.expires_at;
         const now = Date.now();
-        logger.info(`${server.name} Poll successful`);
+        logger.info(`[${server.name}] Poll successful`);
 
         let nextPollDelay = 30000;
         if (typeof expiresAt === "number" && expiresAt > now) {
