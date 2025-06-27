@@ -5,13 +5,13 @@ import { getStatus } from '../services/cache';
 const router: Router = express.Router();
 
 router.get('/:id/raw', (req: Request, res: Response) => {
-  const id = req.params.id;
+  const { id } = req.params;
   const status = getStatus(id);
-  res.send(status ? status : { error: 'Status not found or not cached' });
+  res.json(status ? status : { error: 'Status not found or not cached' });
 });
 
 router.get('/:id/raw_summary', (req: Request, res: Response) => {
-  const id = req.params.id;
+  const { id } = req.params;
   const status = getStatus(id)?.data;
 
   const summary = status ? {
@@ -34,7 +34,7 @@ router.get('/:id/raw_summary', (req: Request, res: Response) => {
     }
   } : { error: 'Status not found or not cached' };
 
-  res.send(summary);
+  res.json(summary);
 });
 
 export default router;
