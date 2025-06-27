@@ -1,0 +1,14 @@
+[
+  {
+    "id": "gtnh",
+    "name": "GT New Horizons",
+    "host": "gtnh.0mega24.com",
+    "dockerName": "gtnh-server",
+    "maxMemory": 24
+  },
+  {
+    "id": "hypixel",
+    "name": "Hypixel",
+    "host": "mc.hypixel.net"
+  }
+]
