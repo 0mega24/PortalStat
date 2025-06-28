@@ -1,6 +1,6 @@
 import { ServerConfig } from "../types/server";
 import Docker from 'dockerode';
-import { totalCores } from '../config/system';
+import { totalCores } from '../utils/system';
 import logger from "../utils/logger";
 
 const docker = new Docker();
