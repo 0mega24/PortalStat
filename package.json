@@ -3,7 +3,7 @@
     "dockerode": "^4.0.7",
     "dotenv": "^16.6.0",
     "express": "^5.1.0",
-    "node-mcstatus": "^1.2.1",
+    "rcon-client": "^4.2.5",
     "winston": "^3.17.0"
   },
   "devDependencies": {
