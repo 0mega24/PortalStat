@@ -1,5 +1,5 @@
 import { ServerConfig } from "../types/server";
-import { statusJava } from "node-mcstatus";
+import { fetchMinecraftStatus } from "./statusClient";
 import { setStatus } from "./cache";
 import logger from "../utils/logger";
 
@@ -12,28 +12,22 @@ export function startPolling(servers: ServerConfig[]) {
   servers.forEach(server => {
     const poll = async () => {
       try {
-        const result = await statusJava(server.host);
+        const result = await fetchMinecraftStatus(server.host, server.port);
         setStatus(server.id, result);
-        const expiresAt = (result as any)?.expires_at;
-        const now = Date.now();
-        logger.info(`[${server.name}] Poll successful`);
 
-        let nextPollDelay = 30000;
-        if (typeof expiresAt === "number" && expiresAt > now) {
-          nextPollDelay = expiresAt - now + 100;
-        }
-
-        setTimeout(() => {
-          queue.push(poll);
-          processQueue();
-        }, nextPollDelay);
-      } catch (err) {
-        logger.error(`${server.name} Poll failed:`, err);
+        logger.info(`[${server.host}] Poll successful`);
 
         setTimeout(() => {
           queue.push(poll);
           processQueue();
         }, 30000);
+      } catch (err) {
+        logger.error(`${server.host} Poll failed:`, err);
+
+        setTimeout(() => {
+          queue.push(poll);
+          processQueue();
+        }, 15000);
       }
     };
 
