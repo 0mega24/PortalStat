@@ -7,13 +7,13 @@ import { PingResponse } from '../types/api';
 const router: Router = express.Router();
 
 router.get('/ping', (req: Request, res: Response<PingResponse>) => {
-  logger.http('GET /api/status/ping called');
-  res.json({ pong: true, time: Date.now() });
+  logger.http('GET /api/ping called');
+  res.status(200).json({ pong: true, time: Date.now() });
 });
 
 router.get('/:id/ping', (req: Request, res: Response<PingResponse>) => {
   const { id } = req.params;
-  logger.http(`GET /api/status/${id}/ping called`);
+  logger.http(`GET /api/${id}/ping called`);
 
   const server = servers.find(s => s.id === id);
   if (!server) {
@@ -26,7 +26,7 @@ router.get('/:id/ping', (req: Request, res: Response<PingResponse>) => {
     res.status(400).json({ error: 'Server is not a local Docker container' });
     return;
   }
-  res.json({ pong: true, time: Date.now(), server: server.dockerName });
+  res.status(200).json({ pong: true, time: Date.now(), server: server.dockerName });
 });
 
 export default router;

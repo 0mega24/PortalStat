@@ -16,7 +16,7 @@ router.get('/:id/raw', (req: Request, res: Response<StatusResponse>) => {
     res.status(404).json({ error: 'Status not found or not cached' });
     return;
   }
-  res.json(status);
+  res.status(200).json(status);
 });
 
 router.get('/:id/summary', (req: Request, res: Response<StatusSummaryResponse>) => {
@@ -54,7 +54,7 @@ router.get('/:id/summary', (req: Request, res: Response<StatusSummaryResponse>) 
     } : undefined,
   };
 
-  res.json(summary);
+  res.status(200).json(summary);
 });
 
 export default router;

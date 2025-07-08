@@ -25,13 +25,12 @@ router.get('/:id/resource-usage', async (req: Request, res: Response<ResourceUsa
 
   try {
     const stats = await getStatus(server.id);
-    logger.info(`Successfully retrieved container stats for server ${id}`);
     if (!stats?.container) {
       logger.warn(`No container stats found for server ${id}`);
       res.status(404).json({ error: 'No container stats available for this server' });
       return;
     }
-    res.json(stats.container);
+    res.status(200).json(stats.container);
   } catch (err) {
     logger.error(`Failed to get container stats for server ${id}: ${(err as Error).message}`);
     res.status(500).json({ error: 'Failed to get container stats', details: (err as Error).message });
