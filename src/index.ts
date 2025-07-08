@@ -8,6 +8,7 @@ import pingRouter from './api/ping';
 import statusRouter from './api/status';
 import resourceRouter from './api/resources';
 import cacheRouter from './api/cache';
+import testRouter from './routes/status';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use("/api", pingRouter);
 app.use("/api/status", statusRouter);
 app.use("/api/resources", resourceRouter);
 app.use("/api", cacheRouter);
+app.use("/api", testRouter);
 app.use(express.static(path.join(__dirname, '../public')));
 
 startStatusPolling(servers);
