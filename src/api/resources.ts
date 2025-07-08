@@ -2,11 +2,12 @@ import express from 'express';
 import type { Request, Response, Router } from 'express';
 import { getContainerStats } from '../services/docker';
 import { servers } from '../config';
-import logger from '../utils/logger';
+import { apiLogger as logger } from '../utils/logger';
+import { ResourceUsageResponse } from '../types/api';
 
 const router: Router = express.Router();
 
-router.get('/:id/resource-usage', async (req: Request, res: Response) => {
+router.get('/:id/resource-usage', async (req: Request, res: Response<ResourceUsageResponse>) => {
   const { id } = req.params;
   logger.http(`GET /api/resources/${id}/resource-usage called`);
 

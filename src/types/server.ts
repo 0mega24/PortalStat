@@ -3,6 +3,7 @@ export interface ServerConfig {
   name: string;
   host: string;
   port?: number;
+  rconHost?: string;
   rconPort?: number;
   rconCommand?: string;
   rconMatchRegex?: string;
