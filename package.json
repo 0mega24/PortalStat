@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "dockerode": "^4.0.7",
+    "dotenv": "^16.6.0",
+    "express": "^5.1.0",
+    "rcon-client": "^4.2.5",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.41",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  }
+}
