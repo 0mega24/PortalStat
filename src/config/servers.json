@@ -4,10 +4,17 @@
     "name": "GT New Horizons",
     "host": "gtnh.0mega24.com",
     "port": 25570,
+    "rconHost": "localhost",
     "rconPort": 25601,
     "rconCommand": "/forge tps",
     "dockerName": "gtnh-server",
     "maxMemory": 24
+  },
+  {
+    "id": "play",
+    "name": "Ron and Sean",
+    "host": "play.0mega24.com",
+    "port": 25566
   },
   {
     "id": "hypixel",
