@@ -1,21 +1,6 @@
 import net from "net";
-import logger from "../utils/logger";
-
-export interface MinecraftStatusResponse {
-  version: {
-    name: string;
-    protocol: number;
-  };
-  players: {
-    max: number;
-    online: number;
-    sample?: { name: string; id: string }[];
-  };
-  description: unknown;
-  favicon?: string;
-  enforcesSecureChat?: boolean;
-  previewsChat?: boolean;
-}
+import { serviceLogger as logger } from "../utils/logger";
+import { MinecraftStatusResponse } from "../types/minecraft";
 
 export class MinecraftStatus {
   host: string;
@@ -24,10 +9,14 @@ export class MinecraftStatus {
 
   constructor(host: string, port = 25565, timeout = 5000) {
     this.host = host;
-    this.port = port;
-    this.timeout = timeout;
+    this.port = port; // default Minecraft port is 25565
+    this.timeout = timeout; // default timeout is 5 seconds
   }
 
+  /**
+   * Encodes an integer using VarInt formating.
+   * Allows the Minecraft protocol sends lengths and IDs.
+   */
   private writeVarInt(value: number): Buffer {
     const buffer: number[] = [];
     while (true) {
@@ -36,7 +25,7 @@ export class MinecraftStatus {
         break;
       }
       buffer.push((value & 0x7f) | 0x80);
-      value >>>= 7;
+      value >>>= 7; // unsigned right shift by 7 bits
     }
     return Buffer.from(buffer);
   }
@@ -52,6 +41,12 @@ export class MinecraftStatus {
       const serverPort = Buffer.alloc(2);
       serverPort.writeUInt16BE(this.port);
 
+      /**
+       * Build handshake packet according to Minecraft's protocol.
+       * Packet structure: [packet ID][protocol version][server address][server port][next state]
+       * - packet ID: 0x00 for handshake
+       * - next state: 0x01 means status
+       */
       const handshakeData = Buffer.concat([
         this.writeVarInt(0x00),
         this.writeVarInt(protocolVersion),
@@ -66,6 +61,7 @@ export class MinecraftStatus {
         handshakeData,
       ]);
 
+      // Status request packet
       const requestPacket = Buffer.from([0x01, 0x00]);
 
       let responseBuffer = Buffer.alloc(0);
@@ -79,18 +75,23 @@ export class MinecraftStatus {
       socket.on("data", (chunk) => {
         responseBuffer = Buffer.concat([responseBuffer, chunk]);
 
+        // Helper to skip over a VarInt-encoded value in the buffer
+        function skipVarInt(buf: Buffer, offset: number): number {
+          while (buf[offset] & 0x80) offset++;
+          return offset + 1;
+        }
+
         let i = 0;
 
-        while (responseBuffer[i] & 0x80) i++;
-        i++;
+        // Skip total length and packet ID
+        i = skipVarInt(responseBuffer, i); // Length prefix
+        i = skipVarInt(responseBuffer, i); // Packet ID
 
-        while (responseBuffer[i] & 0x80) i++;
-        i++;
-
+        // Read JSON payload length (VarInt)
         let jsonLength = 0;
         let shift = 0;
         while (true) {
-          if (i >= responseBuffer.length) return;
+          if (i >= responseBuffer.length) return; // Wait for more data if needed
           const byte = responseBuffer[i++];
           jsonLength |= (byte & 0x7f) << shift;
           if ((byte & 0x80) !== 0x80) break;
@@ -98,7 +99,7 @@ export class MinecraftStatus {
         }
 
         const remaining = responseBuffer.length - i;
-        if (remaining < jsonLength) return;
+        if (remaining < jsonLength) return; // Wait for complete payload
 
         const jsonString = responseBuffer.slice(i, i + jsonLength).toString();
         logger.info(`Received status JSON: ${this.host}`);
@@ -128,12 +129,15 @@ export class MinecraftStatus {
   }
 }
 
+/**
+ * Helper function to fetch a specific Minecraft server's status.
+ */
 export async function fetchMinecraftStatus(host: string, port = 25565): Promise<MinecraftStatusResponse> {
   const status = new MinecraftStatus(host, port);
   try {
     return await status.status();
   } catch (err) {
-    logger.error("Failed to fetch ${this.host}:${this.port} status:", err);
+    logger.error(`Failed to fetch ${host}:${port} status:`, err);
     throw err;
   }
 }

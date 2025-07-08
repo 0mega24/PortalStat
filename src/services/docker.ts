@@ -1,11 +1,12 @@
+import { DockerStats } from "../types/docker";
 import { ServerConfig } from "../types/server";
 import Docker from 'dockerode';
 import { totalCores } from '../utils/system';
-import logger from "../utils/logger";
+import { serviceLogger as logger } from "../utils/logger";
 
 const docker = new Docker();
 
-const latestStats: Map<string, { cpuPercent: string, memoryUsageGB: number }> = new Map();
+const latestStats: Map<string, DockerStats> = new Map();
 
 export async function startContainerStatsStreams(servers: ServerConfig[]) {
   logger.info(`Starting container stats streams for ${servers.length} servers`);
