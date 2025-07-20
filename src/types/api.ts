@@ -8,13 +8,20 @@ export interface StatusSummary {
   description: unknown;
   version: {
     name: string | null;
-    protocol: number | null;
   };
   players: {
     online: number;
     max: number;
     list: { name: string; id: string }[];
   };
+  container?: {
+    cpuPercent: string | null;
+    memoryUsageGB: number | null;
+  };
+  tps?: {
+    tps: number;
+    mspt: number;
+  }
 }
 
 export type StatusSummaryResponse = StatusSummary | { online: false; error: string };

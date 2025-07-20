@@ -1,6 +1,6 @@
 import { ServerConfig } from "../types/server";
-import { fetchMinecraftStatus } from "./statusClient";
-import { setStatus } from "./cache";
+import { fetchMinecraftStatus } from "../clients/statusClient";
+import { updateStatus } from "./cache";
 import { serviceLogger as logger } from "../utils/logger";
 import { PollerTask } from "../types/poller";
 
@@ -18,7 +18,7 @@ export function startPolling(servers: ServerConfig[]) {
     const poll = async () => {
       try {
         const result = await fetchMinecraftStatus(server.host, server.port);
-        setStatus(server.id, result);
+        updateStatus(server.id, { status: result });
 
         logger.info(`[${server.host}] Poll successful`);
 

@@ -35,6 +35,9 @@ const forwardingTransport = new transports.File({
 export const apiLogger = createLoggerWithOptions('API', 'api', 'verbose');
 apiLogger.add(forwardingTransport);
 
+export const clientLogger = createLoggerWithOptions('Client', 'client', 'verbose');
+clientLogger.add(forwardingTransport);
+
 export const serviceLogger = createLoggerWithOptions('Service', 'service', 'verbose');
 serviceLogger.add(forwardingTransport);
 

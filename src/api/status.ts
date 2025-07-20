@@ -16,14 +16,16 @@ router.get('/:id/raw', (req: Request, res: Response<StatusResponse>) => {
     res.status(404).json({ error: 'Status not found or not cached' });
     return;
   }
-  res.json(status);
+  res.status(200).json(status);
 });
 
-router.get('/:id/raw_summary', (req: Request, res: Response<StatusSummaryResponse>) => {
+router.get('/:id/summary', (req: Request, res: Response<StatusSummaryResponse>) => {
   const { id } = req.params;
-  logger.http(`GET /api/status/${id}/raw_summary called`);
+  logger.http(`GET /api/status/${id}/summary called`);
 
   const status = getStatus(id)?.status;
+  const container = getStatus(id)?.container;
+  const tps = getStatus(id)?.tps;
 
   if (!status) {
     logger.warn(`Summary status not found or not cached for server id: ${id}`);
@@ -36,16 +38,23 @@ router.get('/:id/raw_summary', (req: Request, res: Response<StatusSummaryRespons
     description: status.description ?? null,
     version: {
       name: status.version?.name ?? null,
-      protocol: status.version?.protocol ?? null,
     },
     players: {
       online: status.players?.online ?? 0,
       max: status.players?.max ?? 0,
       list: status.players?.sample ?? []
-    }
+    },
+    container: container ? {
+      cpuPercent: container.cpuPercent ?? null,
+      memoryUsageGB: container.memoryUsageGB ?? null,
+    } : undefined,
+    tps: tps ? {
+      tps: tps.tps ?? 0,
+      mspt: tps.mspt ?? 0,
+    } : undefined,
   };
 
-  res.json(summary);
+  res.status(200).json(summary);
 });
 
 export default router;
