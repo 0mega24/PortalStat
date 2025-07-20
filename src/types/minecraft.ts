@@ -8,6 +8,6 @@ export interface MinecraftStatusResponse {
     online: number;
     sample?: { name: string; id: string }[];
   };
-  description: unknown;
+  description: string;
   favicon?: string;
 }

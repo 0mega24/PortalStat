@@ -1,12 +1,11 @@
-import { DockerStats } from "../types/docker";
 import { ServerConfig } from "../types/server";
-import Docker from 'dockerode';
-import { totalCores } from '../utils/system';
-import { serviceLogger as logger } from "../utils/logger";
+import Docker from "dockerode";
+import { totalCores } from "../utils/system";
+import { clientLogger as logger } from "../utils/logger";
+import { updateStatus } from "./cache";
+import { DockerStats } from "../types/docker";
 
 const docker = new Docker();
-
-const latestStats: Map<string, DockerStats> = new Map();
 
 export async function startContainerStatsStreams(servers: ServerConfig[]) {
   logger.info(`Starting container stats streams for ${servers.length} servers`);
@@ -14,14 +13,14 @@ export async function startContainerStatsStreams(servers: ServerConfig[]) {
   servers.forEach(server => {
     if (server.dockerName) {
       logger.info(`Starting stats stream for container: ${server.dockerName}`);
-      startContainerStatsStream(server.dockerName);
+      startContainerStatsStream(server.id, server.dockerName);
     } else {
       logger.warn(`Server ${server.id} does not have a dockerName, skipping stats stream.`);
     }
   });
 }
 
-export async function startContainerStatsStream(containerName: string) {
+export async function startContainerStatsStream(serverId: string, containerName: string) {
   try {
     const container = docker.getContainer(containerName);
     const statsStream = await container.stats({ stream: true });
@@ -31,6 +30,7 @@ export async function startContainerStatsStream(containerName: string) {
 
     statsStream.on('data', (chunk) => {
       buffer += chunk.toString();
+
       try {
         const stats = JSON.parse(buffer);
         buffer = '';
@@ -49,10 +49,12 @@ export async function startContainerStatsStream(containerName: string) {
         const actualMemUsed = memUsage - memCache;
         const memUsageGB = actualMemUsed / 1e9;
 
-        latestStats.set(containerName, {
-          cpuPercent: `${cpuPercent.toFixed(2)}`,
+        const dockerStats: DockerStats = {
+          cpuPercent: cpuPercent.toFixed(2),
           memoryUsageGB: Number(memUsageGB.toFixed(2)),
-        });
+        };
+
+        updateStatus(serverId, { container: dockerStats });
 
       } catch (parseError) {
         logger.warn(`Failed to parse stats data chunk for ${containerName}: ${parseError instanceof Error ? parseError.message : parseError}`);
@@ -69,11 +71,4 @@ export async function startContainerStatsStream(containerName: string) {
   } catch (err) {
     logger.error(`Failed to start stats stream for ${containerName}: ${err instanceof Error ? err.message : err}`);
   }
-}
-
-export function getContainerStats(containerName: string) {
-  return latestStats.get(containerName) || {
-    cpuPercent: '0.00',
-    memoryUsageGB: 0,
-  };
 }
